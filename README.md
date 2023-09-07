@@ -12,3 +12,5 @@ I am not responsible if you do something illegal (in whatever jurisdiction you l
 
 ## Attributions
 `console.js` is a bugfix of anoynmous script posted online. `tampermonkey.js` is my own work, building off the prior file. 
+
+This project is under the MIT License. 
