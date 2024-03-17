@@ -6,11 +6,10 @@ That being said, many SmartFrame-protected images - such as many of those in the
 
 I am not responsible if you do something illegal (in whatever jurisdiction you live in) with this code. I am merely underlining the ineffectiveness of any DRM like this, and underlining the fact that many copyright-free photos are arbitrarily protected. 
 
-## Contents
-- `console.js` - a piece of code, which, when copied and ran in a browser's console, will download the image
-- `tampermonkey.js` - code for a tampermonkey script. addss a nice button which, when clicked, will download the image. automatically detects if a smartframe exists, so can run in background.
+## Contents / How to Use
+- `tampermonkey.js` - Code for a Tampermonkey script. Many detailed tutorials explaining how to install a Tampermonkey script can be found online.
 
-## Attributions
-`console.js` is a bugfix of anoynmous script posted online. `tampermonkey.js` is my own work, building off the prior file. 
+The script will display a nice button if a smart-frame is detected, and clicking it will download the image. Note that it will refresh the page and take a few seconds for the image to actually download — but it will download nonetheless.
 
-This project is under the MIT License. 
+## Licence
+This project is under the MIT License.
