@@ -7,7 +7,7 @@ That being said, many SmartFrame-protected images - such as many of those in the
 I am not responsible if you do something illegal (in whatever jurisdiction you live in) with this code. I am merely underlining the ineffectiveness of any DRM like this, and underlining the fact that many copyright-free photos are arbitrarily protected. 
 
 ## Contents / How to Use
-- `tampermonkey.js` - Code for a Tampermonkey script. Many detailed tutorials explaining how to install a Tampermonkey script can be found online.
+The main file is `tampermonkey.js`, which is the code for the Tampermonkey script. Many detailed tutorials explaining how to install a Tampermonkey script can be found online.
 
 The script will display a nice button if a smart-frame is detected, and clicking it will download the image. Note that it will refresh the page and take a few seconds for the image to actually download — but it will download nonetheless.
 
