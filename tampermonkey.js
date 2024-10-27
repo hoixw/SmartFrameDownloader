@@ -27,10 +27,10 @@ if (localStorage.getItem('runCodeAfterRefresh') === 'true') {
     };
 
     var checkForSmartFrame = setInterval(function() {
-        if (document.querySelector('smart-frame')) {
+        if (document.querySelector('smartframe-embed')) {
             clearInterval(checkForSmartFrame); // Stop checking once the element is found
 
-            var smartFrame = document.querySelector('smart-frame');
+            var smartFrame = document.querySelector('smartframe-embed');
             var styles = getComputedStyle(smartFrame);
             // Actual width and height of image are stored here
             var width = smartFrame.style.getPropertyValue('--sf-original-width');
@@ -56,7 +56,7 @@ if (localStorage.getItem('runCodeAfterRefresh') === 'true') {
 } else {
     // Wait for the page to load completely (otherwise smart-frame won't exist)
     window.addEventListener('load', function() {
-        if (document.querySelector('smart-frame')) {
+        if (document.querySelector('smartframe-embed')) {
             'use strict';
 
             var executeButton = document.createElement('button');
@@ -79,7 +79,7 @@ if (localStorage.getItem('runCodeAfterRefresh') === 'true') {
                 location.reload();
             });
 
-            var smartFrameParent = document.querySelector('smart-frame').parentElement;
+            var smartFrameParent = document.querySelector('smartframe-embed').parentElement;
             smartFrameParent.appendChild(executeButton);
         }
     });
