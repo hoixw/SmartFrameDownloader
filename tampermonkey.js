@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SmartFrame Downloader
 // @namespace    hoixw
-// @version      1.0
+// @version      1.1
 // @description  SmartFrame Downloader
 // @author       hoixw
 // @match        *://*/*
