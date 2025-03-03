@@ -14,17 +14,25 @@ if (localStorage.getItem('runCodeAfterRefresh') === 'true') {
     // Remove the flag from localStorage
     localStorage.removeItem('runCodeAfterRefresh');
 
-    /* 
+    /*
     This forces all shadow-roots created to be open. Closed shadow-roots, as used by the
-    smartFrame, cannot be accessed through JS. That's why they exist. 
+    smartFrame, cannot be accessed through JS. That's why they exist.
     Open shadow-roots can, so this means we can just access it and grab the image.
     */
-    Element.prototype._attachShadow = Element.prototype.attachShadow;
-    Element.prototype.attachShadow = function() {
-        return this._attachShadow({
-            mode: "open"
-        });
+    const nativeAttachShadow = Element.prototype.attachShadow;
+    // Override attachShadow but force mode open
+    Element.prototype.attachShadow = function(init) {
+        init.mode = "open";
+        return nativeAttachShadow.call(this, init);
     };
+
+    // Mask the override by patching toString so it returns a benign string
+    Object.defineProperty(Element.prototype.attachShadow, 'toString', {
+        value: function() {
+            return "function attachShadow() { [native code] }";
+        },
+        writable: false,
+    });
 
     var checkForSmartFrame = setInterval(function() {
         if (document.querySelector('smartframe-embed')) {
