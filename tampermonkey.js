@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SmartFrame Downloader
 // @namespace    hoixw
-// @version      1.1
+// @version      1.2
 // @description  SmartFrame Downloader
 // @author       hoixw
 // @match        *://*/*
@@ -14,32 +14,31 @@ if (localStorage.getItem('runCodeAfterRefresh') === 'true') {
     // Remove the flag from localStorage
     localStorage.removeItem('runCodeAfterRefresh');
 
-    /*
-    This forces all shadow-roots created to be open. Closed shadow-roots, as used by the
-    smartFrame, cannot be accessed through JS. That's why they exist.
-    Open shadow-roots can, so this means we can just access it and grab the image.
-    */
+    // Stores reference to shadow root so that we can access it later
+    let smartFrameShadowRoot = null;
     const nativeAttachShadow = Element.prototype.attachShadow;
-    // Override attachShadow but force mode open
     Element.prototype.attachShadow = function(init) {
-        init.mode = "open";
-        return nativeAttachShadow.call(this, init);
+    const shadowRoot = nativeAttachShadow.call(this, init);
+        if (this.tagName.toLowerCase() === 'smartframe-embed') {
+            smartFrameShadowRoot = shadowRoot;
+            console.log('SMARTFRAME-EMBED shadow root stored:', smartFrameShadowRoot);
+        }
+        return shadowRoot;
     };
 
-    // Mask the override by patching toString so it returns a benign string
-    Object.defineProperty(Element.prototype.attachShadow, 'toString', {
+    // NOT NEEDED: Mask the override by patching toString so it returns a benign string
+    /*Object.defineProperty(Element.prototype.attachShadow, 'toString', {
         value: function() {
             return "function attachShadow() { [native code] }";
         },
         writable: false,
-    });
+    });*/
 
     var checkForSmartFrame = setInterval(function() {
         if (document.querySelector('smartframe-embed')) {
             clearInterval(checkForSmartFrame); // Stop checking once the element is found
 
             var smartFrame = document.querySelector('smartframe-embed');
-            var styles = getComputedStyle(smartFrame);
             // Actual width and height of image are stored here
             var width = smartFrame.style.getPropertyValue('--sf-original-width');
             var height = smartFrame.style.getPropertyValue('--sf-original-height');
@@ -51,13 +50,17 @@ if (localStorage.getItem('runCodeAfterRefresh') === 'true') {
             smartFrame.style.maxHeight = height + "px";
 
             setTimeout(() => {
-                var stage = smartFrame.shadowRoot.querySelector("canvas.stage");
-                var url = document.createElement("canvas").toDataURL.call(stage);
-                var a = document.createElement("a");
-                var t = smartFrame.getAttribute("image-id").replace(/\s/g, '-') + ".png";
-                a.href = url;
-                a.download = t;
-                a.click();
+                if (smartFrameShadowRoot) {
+                    var stage = smartFrameShadowRoot.querySelector("canvas.stage");
+                    var url = document.createElement("canvas").toDataURL.call(stage);
+                    var t = smartFrame.getAttribute("image-id").replace(/\s/g, '-') + ".png";
+                    var a = document.createElement("a");
+                    a.href = url;
+                    a.download = t;
+                    a.click();
+                } else {
+                    console.error("smartFrameShadowRoot not available");
+                }
             }, 3000);
         }
     }, 1000);
