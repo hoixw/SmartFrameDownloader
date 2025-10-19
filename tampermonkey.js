@@ -1,48 +1,53 @@
 // ==UserScript==
 // @name         SmartFrame Downloader
 // @namespace    hoixw
-// @version      1.2
-// @description  SmartFrame Downloader
+// @version      2.0
+// @description  Allows for the download of SmartFrame images, using a TamperMonkey script
 // @author       hoixw
 // @match        *://*/*
 // @grant        none
 // @run-at       document-start
+// @license      MIT
 // ==/UserScript==
 
-// Check if the flag is set in localStorage (uses run-at document start)
-if (localStorage.getItem('runCodeAfterRefresh') === 'true') {
-    // Remove the flag from localStorage
-    localStorage.removeItem('runCodeAfterRefresh');
-
-    // Stores reference to shadow root so that we can access it later
-    let smartFrameShadowRoot = null;
-    const nativeAttachShadow = Element.prototype.attachShadow;
-    Element.prototype.attachShadow = function(init) {
+// Stores reference to shadow root so that we can access it later
+let smartFrameShadowRoot = null;
+const nativeAttachShadow = Element.prototype.attachShadow;
+Element.prototype.attachShadow = function(init) {
     const shadowRoot = nativeAttachShadow.call(this, init);
-        if (this.tagName.toLowerCase() === 'smartframe-embed') {
-            smartFrameShadowRoot = shadowRoot;
-            console.log('SMARTFRAME-EMBED shadow root stored:', smartFrameShadowRoot);
-        }
-        return shadowRoot;
-    };
+    if (this.tagName.toLowerCase() === 'smartframe-embed') {
+        smartFrameShadowRoot = shadowRoot;
+    }
+    return shadowRoot;
+};
 
-    // NOT NEEDED: Mask the override by patching toString so it returns a benign string
-    /*Object.defineProperty(Element.prototype.attachShadow, 'toString', {
-        value: function() {
-            return "function attachShadow() { [native code] }";
-        },
-        writable: false,
-    });*/
+// Wait for the page to load completely (otherwise smart-frame won't exist)
+window.addEventListener('load', () => {
+    const smartFrame = document.querySelector('smartframe-embed');
 
-    var checkForSmartFrame = setInterval(function() {
-        if (document.querySelector('smartframe-embed')) {
-            clearInterval(checkForSmartFrame); // Stop checking once the element is found
+    // Proceed only if a SmartFrame embed exists on the page.
+    if (smartFrame) {
+        const executeButton = document.createElement('button');
+        executeButton.textContent = 'Download Hi-Res';
 
-            var smartFrame = document.querySelector('smartframe-embed');
+        // Apply the original styling to the button.
+        Object.assign(executeButton.style, {
+            padding: '10px 20px',
+            backgroundColor: '#007BFF',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            margin: '10px',
+            position: 'relative',
+        });
+
+        executeButton.addEventListener('click', () => {
             // Actual width and height of image are stored here
-            var width = smartFrame.style.getPropertyValue('--sf-original-width');
-            var height = smartFrame.style.getPropertyValue('--sf-original-height');
-
+            const width = smartFrame.style.getPropertyValue('--sf-original-width');
+            const height = smartFrame.style.getPropertyValue('--sf-original-height');
+            
             // Correct width and height variables
             smartFrame.style.width = width + "px";
             smartFrame.style.maxWidth = width + "px";
@@ -61,37 +66,11 @@ if (localStorage.getItem('runCodeAfterRefresh') === 'true') {
                 } else {
                     console.error("smartFrameShadowRoot not available");
                 }
-            }, 3000);
+            }, 1000);
+        });
+        
+        if (smartFrame.parentElement) {
+            smartFrame.parentElement.appendChild(executeButton);
         }
-    }, 1000);
-} else {
-    // Wait for the page to load completely (otherwise smart-frame won't exist)
-    window.addEventListener('load', function() {
-        if (document.querySelector('smartframe-embed')) {
-            'use strict';
-
-            var executeButton = document.createElement('button');
-            executeButton.textContent = 'Download Hi-Res';
-
-            executeButton.style.padding = '10px 20px';
-            executeButton.style.backgroundColor = '#007BFF';
-            executeButton.style.color = 'white';
-            executeButton.style.border = 'none';
-            executeButton.style.borderRadius = '5px';
-            executeButton.style.cursor = 'pointer';
-            executeButton.style.fontWeight = 'bold';
-            executeButton.style.margin = '10px';
-
-            // Attach a click event listener to the button
-            executeButton.addEventListener('click', function() {
-                // Sets localStorage flag for code to be run after refresh immediately
-                localStorage.setItem('runCodeAfterRefresh', 'true');
-
-                location.reload();
-            });
-
-            var smartFrameParent = document.querySelector('smartframe-embed').parentElement;
-            smartFrameParent.appendChild(executeButton);
-        }
-    });
-}
+    }
+});
