@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SmartFrame Downloader
 // @namespace    hoixw
-// @version      2.0
+// @version      2.1
 // @description  Allows for the download of SmartFrame images, using a TamperMonkey script
 // @author       hoixw
 // @match        *://*/*
@@ -47,28 +47,45 @@ window.addEventListener('load', () => {
             // Actual width and height of image are stored here
             const width = smartFrame.style.getPropertyValue('--sf-original-width');
             const height = smartFrame.style.getPropertyValue('--sf-original-height');
-            
+
             // Correct width and height variables
             smartFrame.style.width = width + "px";
             smartFrame.style.maxWidth = width + "px";
             smartFrame.style.height = height + "px";
             smartFrame.style.maxHeight = height + "px";
 
-            setTimeout(() => {
-                if (smartFrameShadowRoot) {
-                    var stage = smartFrameShadowRoot.querySelector("canvas.stage");
-                    var url = document.createElement("canvas").toDataURL.call(stage);
-                    var t = smartFrame.getAttribute("image-id").replace(/\s/g, '-') + ".png";
-                    var a = document.createElement("a");
-                    a.href = url;
-                    a.download = t;
-                    a.click();
-                } else {
-                    console.error("smartFrameShadowRoot not available");
+            const start = performance.now();
+            const MAX_WAIT = 60000; // bail out after 60s
+
+            const waitForRender = (resolve, reject) => {
+                if (performance.now() - start > MAX_WAIT) {
+                    reject(new Error("Timed out waiting for canvas to render"));
+                    return;
                 }
-            }, 1000);
+
+                if (smartFrameShadowRoot) {
+                    const stage = smartFrameShadowRoot.querySelector("canvas.stage");
+                    if (stage && stage.width >= width && stage.height >= height) {
+                        resolve(stage);
+                        return;
+                    }
+                }
+
+                requestAnimationFrame(() => waitForRender(resolve, reject));
+            };
+
+            new Promise(waitForRender)
+                .then((stage) => {
+                const url = document.createElement("canvas").toDataURL.call(stage);
+                const t = smartFrame.getAttribute("image-id").replace(/\s/g, '-') + ".png";
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = t;
+                a.click();
+            })
+                .catch((err) => console.error("SmartFrame Downloader:", err));
         });
-        
+
         if (smartFrame.parentElement) {
             smartFrame.parentElement.appendChild(executeButton);
         }
