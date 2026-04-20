@@ -9,7 +9,7 @@ I am not responsible if you do something illegal (in whatever jurisdiction you l
 ## Contents / How to Use
 The main file is `tampermonkey.js`, which is the code for the Tampermonkey script. Many detailed tutorials explaining how to install a Tampermonkey script can be found online. For Chrome users, note that TamperMonkey requires 'Developer Mode' to be enabled to function, as of recent Manifest V3 Updates. A guide on how to do this can be found [here](https://www.tampermonkey.net/faq.php?locale=en#Q209).
 
-The script will display a nice button if a smart-frame is detected, and clicking it will download the image. Note that it will refresh the page and take a few seconds for the image to actually download — but it will download nonetheless.
+The script will display a nice button if a smart-frame is detected, and clicking it will download the image.
 
 ## Licence
 This project is under the MIT License.
